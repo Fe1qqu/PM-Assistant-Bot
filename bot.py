@@ -1,4 +1,3 @@
-from email.mime import application
 import json
 import os
 
@@ -7,20 +6,20 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, ConversationHandler, MessageHandler, filters
 
 from message_mapper import map_message
-from source_config import SourceConfig, set_config, get_config
+from source_config import SourceConfig
+from source_config_store import SourceConfigStore
 
 
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+config_store = SourceConfigStore()
 
 PROJECT_ID_STATE, SOURCE_TYPE_STATE, SOURCE_ID_STATE = range(3)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print("Received /start")
-    
     await update.message.reply_text(
         "Бот работает.\n\n"
         "Для настройки этого чата используйте /connect."
@@ -68,7 +67,7 @@ async def connect_source_id(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         source_type=context.user_data["source_type"],
     )
 
-    set_config(chat_id, config)
+    config_store.set(chat_id, config)
 
     context.user_data.clear()
 
@@ -86,7 +85,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
 
     chat_id = message.chat.id
-    source_config = get_config(chat_id)
+    source_config = config_store.get(chat_id)
 
     if source_config is None:
         await message.reply_text(
