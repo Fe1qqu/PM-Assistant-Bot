@@ -28,8 +28,8 @@ class SourceConfigStore:
         self._configs = {
             int(chat_id): SourceConfig(
                 project_id=config["project_id"],
-                source_id=config["source_id"],
                 source_type=config["source_type"],
+                channel=config["channel"],
             )
             for chat_id, config in data.items()
         }
@@ -38,8 +38,8 @@ class SourceConfigStore:
         data = {
             str(chat_id): {
                 "project_id": config.project_id,
-                "source_id": config.source_id,
                 "source_type": config.source_type,
+                "channel": config.channel,
             }
             for chat_id, config in self._configs.items()
         }
